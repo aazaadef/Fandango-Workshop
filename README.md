@@ -8,8 +8,7 @@ Submitted to **IEEE TALE 2026**, Pattaya, Thailand.
 
 | File/Folder | Description |
 |---|---|
-| `Main. Fandango.tex` | Full LaTeX source of the paper (final version) |
-| `main.human.tex` | Humanized prose version of the paper |
+| `main.tex` | Full LaTeX source of the paper |
 | `analysis.py` | Python replication script (statistics + figures) |
 | `data_pre_questionnaire.csv` | Pre-session self-assessment responses (N=22) |
 | `data_post_questionnaire.csv` | Post-session questionnaire responses (N=21) |
@@ -22,8 +21,7 @@ pip install matplotlib numpy
 python analysis.py
 ```
 
-Outputs Wilcoxon signed-rank test results, effect sizes ($r = |Z|/\sqrt{N}$),
-and regenerates the pre/post and perception figures.
+Outputs Wilcoxon signed-rank test results, effect sizes ($r = |Z|/\sqrt{N}$), and regenerates the pre/post and perception figures.
 
 ## Participants
 
