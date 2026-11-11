@@ -12,35 +12,25 @@
 
 \begin{document}
 
-\title{From Passing Tests to Finding Failures: Teaching Exploratory and Robustness-Oriented Testing with Fuzzing}
+\title{Dancing at the Edge Cases: Teaching Grammar-Based Fuzz Testing with Fandango}
 
 \author{
-\IEEEauthorblockN{
-Author One\IEEEauthorrefmark{1}\IEEEauthorrefmark{2},
-Author Two\IEEEauthorrefmark{1},
-Author Three\IEEEauthorrefmark{1},
-Author Four\IEEEauthorrefmark{1}\IEEEauthorrefmark{2}
-}
-\IEEEauthorblockA{\IEEEauthorrefmark{1}Affiliation One, City, Country}
-\IEEEauthorblockA{\IEEEauthorrefmark{2}Affiliation Two, Institution, City, Country}
-\{email1, email2, email3\}@domain.com, email4@domain.com
+\IEEEauthorblockN{Aazaade Faraji\IEEEauthorrefmark{1}, Enrico Nunes\IEEEauthorrefmark{1}, Francisco Reis\IEEEauthorrefmark{1}, Nuno Pombo\IEEEauthorrefmark{1}\IEEEauthorrefmark{2},
+Christina Andersson\IEEEauthorrefmark{3}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Universidade da Beira Interior, Covilh\~{a}, Portugal}
+\IEEEauthorblockA{\IEEEauthorrefmark{2}Instituto de Telecomunica\c{c}\~{o}es, Universidade da Beira Interior, Covilh\~{a}, Portugal}
+\IEEEauthorblockA{\IEEEauthorrefmark{3}Computer Science \& Engineering, Frankfurt University of Applied Sciences, Frankfurt, Germany}
+\{aazaade.faraji, enrico.nunes, francisco.reis, ngpombo\}@ubi.pt, christina.andersson@fra-uas.de
 }
 
 \maketitle
 
 \begin{abstract}
-Most software testing education focuses on confirming expected behavior, leaving students ill-equipped to discover unexpected failures.
-This paper presents a structured classroom workshop that uses grammar-based fuzz testing with \emph{Fandango} to shift master's students toward exploratory and robustness-oriented testing thinking.
-The workshop follows a four-phase pedagogical design: conceptual introduction, instructor live demonstration with a deliberately buggy program, guided student replication using shared materials, and an open-ended extension activity in which students introduce their own bugs and write new programs to fuzz.
-We evaluated the workshop with 22 students, collecting pre/post self-assessment questionnaires ($N = 20$ matched pairs) and post-session perception data.
-Results show large, statistically significant gains in domain-specific familiarity: grammar-based fuzzing knowledge increased by $+2.05$ points ($p < 0.001$, $r = 0.877$) and understanding of random-vs.-grammar fuzzing by $+2.10$ ($p < 0.001$, $r = 0.877$).
-Students reported good usability (3.90/5) and engagement (3.87/5).
-Open-ended responses also indicated an emergent connection between fuzzing and security-aware reasoning.
-While limited to a single cohort and short workshop session, the findings suggest that grammar-based fuzzing provides a structured, replicable intervention for introducing exploratory and robustness-oriented testing thinking, with empirical evidence of gains in self-assessed familiarity and clear identification of barriers to classroom adoption.
+Software testing education often emphasizes confirming expected behavior, leaving students less prepared to uncover unexpected failures. This paper presents a structured classroom workshop using grammar-based fuzz testing with \emph{Fandango} to promote exploratory and robustness-oriented testing among master's students. The workshop comprised four phases: conceptual introduction, instructor demonstration with a deliberately faulty program, guided student replication, and an open-ended activity in which students introduced faults or created new programs to fuzz. We evaluated it as a pilot in one class of 22 students, using pre/post self-assessments ($N=20$ matched pairs), a multiple-choice knowledge item, and post-session perception data. Self-reported familiarity with grammar-based fuzzing rose by $+2.05$ points ($p<0.001$, $r=0.89$) and understanding of random versus grammar-based fuzzing by $+2.10$ ($p<0.001$, $r=0.89$); every student rated both higher afterwards. The knowledge item, already answered correctly by 90\% of students beforehand, did not improve. Students rated usability (3.90/5) and engagement (3.87/5) positively, and installation was the most frequently reported difficulty. The design is replicable and all materials are public; because the evaluation relies on self-report in a single cohort without a control group, its results are exploratory.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Fuzz Testing, Software Testing Education, Exploratory Testing, Grammar-Based Fuzzing, Security-Aware Testing, Active Learning
+Software Testing Education, Grammar-Based Fuzzing, Robustness-Oriented Testing, Active Learning
 \end{IEEEkeywords}
 
 % ===========================================================================
@@ -48,8 +38,7 @@ Fuzz Testing, Software Testing Education, Exploratory Testing, Grammar-Based Fuz
 \label{sec:intro}
 % ===========================================================================
 
-A fundamental limitation of traditional software testing education is its emphasis on \emph{correctness validation}: students learn to write test cases that confirm expected outputs for expected inputs.
-While necessary, this approach cultivates a mindset poorly suited for discovering the failures that matter most in practice---unexpected inputs, edge cases, malformed data, and adversarial conditions that no developer initially anticipated.
+A fundamental limitation of traditional software testing education is its emphasis on \emph{correctness validation}: students learn to write test cases that confirm expected outputs for expected inputs~\cite{garousi2020testing}. Although necessary, this approach may leave students unprepared to identify the failures that matter most in practice, such as those caused by unexpected inputs, edge cases, malformed data, and adversarial conditions that developers may not initially anticipate.
 
 Consider a simple scenario: a developer writes a command-line calculator and verifies it works for \texttt{ADD 2 3} and \texttt{MUL 4 5}.
 All tests pass.
@@ -58,15 +47,15 @@ Or \texttt{ADD 999999 999999}?
 Or simply an empty string?
 Traditional testing rarely finds these failures because it tests what developers \emph{expect}, not what programs \emph{cannot handle}.
 
-Fuzz testing---the automated generation of unexpected, malformed, or boundary inputs---directly addresses this gap~\cite{miller1990empirical}.
-In particular, \emph{grammar-based fuzzing} generates structured inputs from formal grammar specifications, enabling systematic exploration of a program's input space in a way that is both principled and comprehensible to learners.
-Unlike random fuzzing, grammar-based fuzzing produces syntactically meaningful inputs, making the connection between input structure and program behavior explicit and observable.
+Fuzz testing addresses this gap by automatically generating unexpected, malformed, or boundary-case inputs~\cite{miller1990empirical}.
 
-Despite its industrial prevalence~\cite{manes2019art}, fuzzing remains largely absent from software testing curricula.
-Barriers include perceived complexity, lack of classroom-friendly tooling, and insufficient pedagogical frameworks connecting fuzzing to broader testing goals.
+In particular, grammar-based fuzzing generates structured inputs from formal specifications, enabling principled and comprehensible exploration of a program's input space. Unlike random fuzzing, grammar-based fuzzing produces syntactically meaningful inputs, making the relationship between input structure and program behavior visible.
 
-This paper presents a structured classroom workshop using \emph{Fandango}~\cite{fandango2025}, an open-source Python grammar-based fuzzer, to introduce exploratory and robustness-oriented testing thinking to master's students.
-The workshop was designed not merely as a tool demonstration but as a \emph{mindset intervention}: helping students shift from asking ``does this program produce the right output?'' to asking ``what inputs could break this program?''
+Despite its widespread use in industry~\cite{manes2019art}, fuzzing still receives limited attention in software testing education.
+Possible reasons include technical barriers, lack of classroom-friendly tools, and insufficient pedagogical frameworks for introducing fuzzing to students.
+
+This paper describes a structured classroom workshop using \emph{Fandango}~\cite{zamudio2025fandango}, an open-source, language-based fuzzer for Python, to introduce master's students to fuzz testing.
+The activity was not designed as a simple tool demonstration, but as a \emph{mindset intervention}: shifting students' attention from ``Does the program produce expected results?'' to ``What kinds of inputs could break this program?''
 
 The study is guided by three research questions:
 \begin{description}
@@ -76,9 +65,9 @@ The study is guided by three research questions:
 \end{description}
 
 The contributions of this paper are threefold.
-First, we present a structured, replicable pedagogical design for teaching grammar-based fuzzing that progresses from passive observation to active experimentation.
-Second, we report empirical evidence of significant self-reported learning gains ($p < 0.001$, large effect sizes $r \geq 0.877$) in grammar-based fuzzing familiarity and related concepts.
-Third, this paper operationalizes grammar-based fuzzing as a structured, replicable, and empirically evaluated classroom intervention and identifies the practical and conceptual barriers that shape its adoption in educational contexts.
+First, we present a structured, replicable workshop design that moves students from observing a fuzzer to using it on programs of their own.
+Second, we report a pilot evaluation showing large self-reported gains in familiarity with grammar-based fuzzing ($p < 0.001$, $r \geq 0.87$), alongside a knowledge item that did not improve.
+Third, we identify the practical and conceptual barriers students reported, and release all workshop materials, data, and analysis scripts so that the activity can be reused and evaluated more rigorously elsewhere.
 
 % ===========================================================================
 \section{Background and Related Work}
@@ -89,34 +78,35 @@ Third, this paper operationalizes grammar-based fuzzing as a structured, replica
 
 Software testing is frequently underrepresented in programming curricula, with students perceiving it as tedious and secondary to writing code~\cite{garousi2020testing}.
 A systematic literature mapping by Garousi et al.~\cite{garousi2020testing} covering over 200 empirical studies found that most testing education research addresses correctness-oriented techniques---unit testing, test case design, and coverage criteria---while robustness, exploratory, and failure-seeking approaches remain comparatively underexplored.
-Students trained exclusively on example-based testing develop strong verification skills but may lack the adversarial reasoning needed to discover unexpected failures~\cite{ammann2016introduction}.
-Novices, in particular, tend to underestimate the failure space for boundary and malformed inputs~\cite{mccauley2008debugging}.
+Students trained exclusively on example-based testing develop strong verification skills but may lack the adversarial approach required to detect unusual cases of failure~\cite{ammann2016introduction}.
+Novices, in particular, tend to underestimate how boundary inputs and malformed data can cause failures~\cite{mccauley2008debugging}.
 This body of work identifies a persistent gap: techniques that explicitly target robustness and exploratory thinking---such as fuzz testing---are rarely embedded in general software engineering courses.
 
 \subsection{Exploratory and Robustness-Oriented Testing}
 
-Exploratory testing~\cite{whittaker2009exploratory} frames testing as an investigative activity in which testers actively seek failures rather than confirm functionality.
+Exploratory testing~\cite{whittaker2009exploratory} describes a process in which testers actively investigate potential errors instead of confirming functionality.
 Robustness testing extends this by explicitly targeting program behavior under abnormal or boundary conditions~\cite{manes2019art}.
-Fuzzing operationalizes both---it explores the input space automatically and targets robustness by design.
+Fuzzing operationalizes both: it explores the input space automatically and targets robustness by design.
 
 \subsection{Fuzz Testing: Concepts and Educational Potential}
 
-Fuzz testing was introduced by Miller et al.~\cite{miller1990empirical} and has become a standard industrial technique~\cite{klees2018evaluating}.
-Modern fuzzers such as AFL~\cite{afl2021} and LibFuzzer operate at scale in industrial codebases.
+Fuzz testing was introduced by Miller et al.~\cite{miller1990empirical} and is widely used as an industrial method~\cite{klees2018evaluating}.
+Modern fuzzers such as AFL~\cite{afl2021} and LibFuzzer operate at an industrial scale in real-world applications.
 Grammar-based fuzzing~\cite{aschermann2019nautilus, zeller2019fuzzing} generates structured inputs from formal specifications, producing human-readable test cases that illuminate the relationship between input format and program behavior.
 This makes grammar-based fuzzing particularly suited for educational settings: students can read, modify, and reason about the generated inputs.
+Fandango~\cite{zamudio2025fandango} combines such a grammar with optional Python constraints, which keeps the input specification short enough to read in class.
 
-Despite its importance, fuzzing is rarely taught in software engineering courses and is typically framed as a security technique rather than a general testing strategy~\cite{klees2018evaluating}.
-This framing limits its uptake in non-security courses, where robustness testing is equally valuable.
+Despite its importance, fuzzing is rarely addressed in software engineering classes and is usually presented as a security technique instead~\cite{klees2018evaluating}.
+This narrow interpretation of fuzzing may hinder its adoption outside security-related classes.
+Interactive textbooks such as \emph{The Fuzzing Book}~\cite{zeller2019fuzzing} make these techniques accessible for self-study, but they are not designed as a single, scaffolded classroom session for students without a security background.
 
 \subsection{Hands-on and Experiential Learning in Security and Software Engineering Education}
 
 Effective learning in software engineering requires more than passive instruction; students benefit from active engagement with realistic tasks and immediate feedback~\cite{kolb1984experiential}.
 Experiential learning theory~\cite{kolb1984experiential} posits that learning occurs through cycles of concrete experience, reflective observation, and active experimentation---a model that directly informs the workshop design reported in this paper.
-Problem-based learning~\cite{hmelo2004problem} and inquiry-based approaches~\cite{prince2004active} further support structured activities in which students encounter genuine problems without predetermined solutions.
+The techniques of problem-based learning~\cite{hmelo2004problem} and inquiry-based learning~\cite{prince2004active} provide additional motivation for engaging in structured activities where students are presented with real-world problems that lack predefined solutions.
 
-Hands-on laboratory activities have also proven effective in security and software engineering education, where tool-supported exercises that expose students to realistic failure modes and adversarial conditions support the development of both technical skills and security-aware reasoning~\cite{du2011seed}.
-This aligns with the emergent finding in our study that students spontaneously connected observed crashes to potential security vulnerabilities---a pattern consistent with the broader literature on experiential security learning.
+Moreover, hands-on laboratory activities have also proven effective in security and software engineering education, where tool-supported exercises that expose students to realistic failure modes and adversarial conditions support the development of both technical skills and security-aware reasoning~\cite{du2011seed}.
 
 Prior work has thus extensively examined software testing education, active learning, and fuzzing as a professional technique. However, less attention has been paid to how grammar-based fuzzing can be translated into a short, scaffolded, and empirically evaluated classroom activity for general software engineering students. This study addresses this gap by presenting and evaluating a four-phase workshop that introduces grammar-based fuzzing as a practical vehicle for exploratory and robustness-oriented testing thinking.
 
@@ -127,9 +117,9 @@ Prior work has thus extensively examined software testing education, active lear
 
 \subsection{Participants and Context}
 
-Participants were 22 master's students enrolled in a software engineering course at the Universidade da Beira Interior, Portugal.
+Participants were 22 master's students enrolled in a software testing course at the Universidade da Beira Interior, Portugal.
 Most (21/22) were from Computer Science or Software Engineering programs with intermediate programming experience.
-Most reported little or no prior exposure to fuzz testing.
+Most had little or no prior exposure to fuzz testing: 18 of the 21 respondents rated their familiarity as 1 or 2 on a 5-point scale.
 Participation in the research evaluation was voluntary, anonymous, and conducted under informed consent.
 
 \subsection{Workshop Design}
@@ -148,38 +138,43 @@ The instructor presented the limitations of example-based testing using concrete
 
 \subsubsection{Phase 2 --- Live Demonstration (15~min)}
 The instructor ran a live fuzzing session using a deliberately buggy Python calculator program and a corresponding Fandango grammar file (\texttt{.fan}).
-Students observed crashes in real time as the fuzzer generated inputs such as \texttt{DIV 7 0} and malformed expressions.
+Students observed crashes in real time as the fuzzer generated inputs such as \texttt{DIV 7 0}.
 The instructor then analyzed a crash trace with the class, identifying the root cause and discussing how a defensive fix would look.
 
 \subsubsection{Phase 3 --- Guided Replication (45~min)}
-The instructor shared all materials with students via Google Drive: the buggy Python program, the Fandango grammar file (\texttt{.fan}), and a Markdown guide (\texttt{.md}) with step-by-step instructions for activating a Python virtual environment and running the fuzzer.
+The instructor distributed the buggy Python code, the Fandango grammar (\texttt{.fan}), and a Markdown guide (\texttt{.md}) with the commands to install and run the fuzzer; setting up a virtual Python environment was explained in class.
 Students installed Fandango, ran the provided grammar against the target program, and observed the same crashes the instructor had demonstrated.
 The instructor circulated to assist with installation and execution issues.
-After successfully reproducing the fuzzing session, students were guided to modify the grammar to generate specific input classes (e.g., negative numbers, very large values, empty strings) and observe how each modification affected crash discovery.
+After reproducing the fuzzing session, students were guided verbally, working on their own machines, to modify the grammar to generate specific input classes (e.g., negative numbers, very large values, empty strings) and observe how each modification affected crash discovery.
 
 \subsubsection{Phase 4 --- Open-Ended Extension (20~min)}
-Students were given two options: (a)~introduce one or more deliberate bugs into the instructor's calculator program and attempt to verify whether the fuzzer could detect the new faults; or (b)~write a new Python program of their choice and repeat the entire fuzzing process from grammar design to crash analysis.
-This phase encouraged students to reason adversarially: to think as both developer and tester simultaneously.
-A short group reflection and post-session questionnaire concluded the workshop.
+Students chose between two options: (a)~inserting one or more bugs into the calculator and checking whether the fuzzer detected them; or (b)~writing a new Python program of their choice and repeating the whole process, from grammar design to crash analysis.
+Such a task forces students to reason about testing from an adversarial perspective: as both developer and tester.
+A short group discussion and a post-test questionnaire concluded the workshop.
 
 \subsection{Data Collection}
 
 \subsubsection{Pre-Activity Questionnaire}
-Background information; seven Likert self-assessment items (5-point scale) measuring: familiarity with fuzz testing, familiarity with grammar-based fuzzing, CLI confidence, edge-case understanding, automated test generation understanding, crash interpretation confidence, and understanding of the random-vs.-grammar distinction; one MCQ on grammar-based fuzzing definition.
+Seven Likert self-assessment items (5-point scale) measuring: familiarity with fuzz testing, familiarity with grammar-based fuzzing, CLI confidence, edge-case understanding, automated test generation understanding, crash interpretation confidence, and understanding of the random-vs.-grammar distinction; and one multiple-choice question (MCQ) on the definition of grammar-based fuzzing.
 
 \subsubsection{Post-Activity Questionnaire}
 Same seven Likert items and MCQ; plus post-only constructs: perceived learning (5~items), engagement (3~items), usability (2~items), cognitive load (3~items), and four open-ended questions.
 
 \subsubsection{Anonymous Matching}
-Participants generated a personal code (last two digits of phone number + birth month + first letter of first name) used across both questionnaires.
-Of 22 participants, 20 provided matched pre/post responses; one provided only a pre-session response.
-All paired analysis uses $N = 20$.
+Students generated a personal code (last two digits of phone number + birth month + first letter of the mother's first name) used across both questionnaires.
+Of the 22 students, 21 completed the pre-questionnaire and 20 the post-questionnaire.
+Eighteen codes matched exactly; two more pairs were matched after correcting typing errors in the code (one contained an impossible birth month), giving $N = 20$ pairs, and one student completed only the pre-questionnaire.
+Repeating every paired analysis with the 18 exact matches leaves all conclusions unchanged.
 
 \subsection{Data Analysis}
 
-Pre/post Likert differences were tested using the Wilcoxon signed-rank test with effect size $r = |Z|/\sqrt{N}$.
-Construct means were computed for post-session perception items.
-Open-ended responses were analyzed using lightweight thematic coding.
+Pre/post Likert differences were compared with a two-sided Wilcoxon signed-rank test.
+Zero differences were discarded and tied absolute differences were mid-ranked; exact $p$-values were obtained by enumerating all sign assignments of the ranks, and the effect size is $r = |Z|/\sqrt{N}$, with $Z$ from the tie-corrected normal approximation and $N = 20$ pairs.
+The MCQ was compared with an exact McNemar test.
+For the post-session constructs we report means, the share of responses of 4 or 5 (``\% agree''), and Cronbach's~$\alpha$.
+All analyses used SciPy; the script is in the replication package.
+One author grouped the open-ended answers by recurring topic; this was not a formal thematic analysis with independent coders, so we report the groupings as descriptive impressions with counts of students.
+Answers written in Portuguese were translated by the authors.
 
 % ===========================================================================
 \section{Results}
@@ -192,7 +187,7 @@ Table~\ref{tab:likert} reports pre/post self-assessment for all seven Likert ite
 Fig.~\ref{fig:prepost} visualizes the shifts across all items.
 
 \begin{table}[htbp]
-\caption{Pre/Post Self-Assessment ($N = 20$)}
+\caption{Pre/Post Self-Assessment ($N = 20$; Exact Wilcoxon $p$)}
 \label{tab:likert}
 \centering
 \small
@@ -200,13 +195,13 @@ Fig.~\ref{fig:prepost} visualizes the shifts across all items.
 \toprule
 Item & Pre & Post & $\Delta$ & $p$ & $r$ \\
 \midrule
-Fuzz familiarity         & 1.80 & 3.55 & +1.75 & $<$\,.001 & .855 \\
-Grammar-fuzz famil.      & 1.60 & 3.65 & +2.05 & $<$\,.001 & .877 \\
-CLI confidence           & 2.90 & 3.50 & +0.60 & .017 & .567 \\
-Edge-case underst.       & 3.60 & 3.85 & +0.25 & .322 & .285 \\
-Auto-test generation     & 3.70 & 4.10 & +0.40 & .091 & .422 \\
-Crash interpretation     & 3.00 & 3.45 & +0.45 & .033 & .513 \\
-Random vs.\ grammar      & 1.65 & 3.75 & +2.10 & $<$\,.001 & .877 \\
+Fuzz familiarity         & 1.80 & 3.55 & +1.75 & $<$\,.001 & .873 \\
+Grammar-fuzz famil.      & 1.60 & 3.65 & +2.05 & $<$\,.001 & .888 \\
+CLI confidence           & 2.90 & 3.50 & +0.60 & .009 & .593 \\
+Edge-case underst.       & 3.60 & 3.85 & +0.25 & .273 & .310 \\
+Auto-test generation     & 3.70 & 4.10 & +0.40 & .072 & .447 \\
+Crash interpretation     & 3.00 & 3.45 & +0.45 & .020 & .558 \\
+Random vs.\ grammar      & 1.65 & 3.75 & +2.10 & $<$\,.001 & .885 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -218,13 +213,19 @@ Random vs.\ grammar      & 1.65 & 3.75 & +2.10 & $<$\,.001 & .877 \\
 \label{fig:prepost}
 \end{figure}
 
-The workshop produced the largest gains on items directly targeting grammar-based fuzzing knowledge.
-Grammar-based fuzzing familiarity increased by $+2.05$ points ($p < 0.001$, $r = 0.877$, large effect), understanding of the random-vs.-grammar distinction by $+2.10$ ($p < 0.001$, $r = 0.877$), and general fuzz testing familiarity by $+1.75$ ($p < 0.001$, $r = 0.855$).
-These gains reflect a very low pre-session baseline (mean $\approx$ 1.6/5), where large gains were possible precisely because students had almost no prior exposure to fuzzing.
+The workshop produced the largest gains on items directly targeting grammar-based fuzzing.
+Self-reported familiarity with grammar-based fuzzing increased by $+2.05$ points ($p < 0.001$, $r = 0.888$) and understanding of the random-vs.-grammar distinction by $+2.10$ ($p < 0.001$, $r = 0.885$); all 20 students rated both items higher after the workshop.
+General fuzz testing familiarity rose by $+1.75$ ($p < 0.001$, $r = 0.873$).
+These gains start from a very low baseline (mean $\approx$ 1.6/5): students had almost no prior exposure to fuzzing.
 
 Regarding robustness-oriented testing competencies, results were more nuanced.
-Crash interpretation improved significantly ($+0.45$, $p = 0.033$, $r = 0.513$) and CLI confidence showed a moderate, significant gain ($+0.60$, $p = 0.017$, $r = 0.567$).
-Edge-case understanding and automated test generation showed positive but non-significant trends ($p > 0.05$), consistent with these being broader robustness competencies that a single session cannot fully develop.
+Crash interpretation ($+0.45$, $p = 0.020$, $r = 0.558$) and CLI confidence ($+0.60$, $p = 0.009$, $r = 0.593$) improved significantly, while edge-case understanding and automated test generation showed positive but non-significant trends ($p > 0.05$), consistent with these being broader competencies that a single session cannot fully develop.
+
+\textbf{Knowledge item.}
+The MCQ, asking which statement best describes grammar-based fuzzing, does not corroborate these self-reported gains.
+Before the workshop, 18 of the 20 matched students chose the correct answer; afterwards, 15 did.
+Four students switched from the correct answer to a wrong one---three to ``random meaningless bytes''---and one switched the other way (exact McNemar $p = 0.375$).
+With 90\% correct at the outset, a single item leaves little room for improvement, but it means the gains above should be read as changes in how students rated themselves, not as demonstrated knowledge.
 
 \subsection{RQ2: Student Perception}
 
@@ -235,14 +236,18 @@ Table~\ref{tab:perception} summarizes post-session perception ($N = 20$), with F
 \label{tab:perception}
 \centering
 \small
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-Construct (items) & Mean & \% Agree \\
+Construct (items) & Mean & \% Agree & $\alpha$ \\
 \midrule
-Perceived Learning (5) & 3.73 & 60\% \\
-Engagement (3)         & 3.87 & 62\% \\
-Usability (2)          & 3.90 & 68\% \\
-Cognitive Load (3)     & 3.32 & --- \\
+Perceived Learning (5) & 3.73 & 60\% & .88 \\
+Engagement (3)         & 3.87 & 62\% & .86 \\
+Usability (2)          & 3.90 & 68\% & .81 \\
+\midrule
+\multicolumn{4}{l}{Cognitive load, by item ($\alpha = .15$)} \\
+\quad Mental effort          & 3.10 & 25\% & --- \\
+\quad Parts confusing        & 3.00 & 30\% & --- \\
+\quad Difficulty appropriate & 3.85 & 65\% & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -250,34 +255,31 @@ Cognitive Load (3)     & 3.32 & --- \\
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_fandango_perception.pdf}
-\caption{Post-session perception: mean scores across four constructs. Dashed line indicates neutral (3).}
+\caption{Post-session perception: construct means and the three cognitive-load (CL) items, which did not form a reliable scale and are shown separately. Dashed line indicates neutral (3).}
 \label{fig:perception}
 \end{figure}
 
-Perceived learning was moderate (3.73/5, 60\% agree), which may reflect the conceptual novelty of the domain rather than dissatisfaction.
+Perceived learning was moderate (3.73/5, 60\% agree), which may reflect the novelty of the domain rather than dissatisfaction.
 Engagement was good (3.87/5, 62\% agree).
-Usability was rated highest (3.90/5), suggesting that Fandango's interface was accessible once installation was complete.
-Cognitive load was moderate (3.32/5), consistent with the inherent complexity of fuzzing combined with CLI tool operation.
-Because the cognitive-load items showed lower internal consistency, this construct is interpreted descriptively rather than as a validated scale score.
+Usability received the highest rating (3.90/5), suggesting that Fandango was reasonably accessible once installed.
+The three cognitive-load items did not form a reliable scale ($\alpha = 0.15$), so we report them individually: mental effort 3.10, parts of the workshop confusing 3.00, and difficulty level appropriate 3.85 (65\% agree).
 
 \subsection{RQ3: Student Difficulties and What They Reveal}
 
-Thematic analysis of open-ended responses revealed two categories of difficulties and two emergent positive themes.
+Twenty students answered four open-ended questions; the counts below are of students.
 
 \textbf{Practical difficulties.}
-The most frequently reported challenge was tool installation and environment configuration, particularly on Windows (\emph{``problems installing Fandango,''} \emph{``version of Python,''} \emph{``pre requirements to make the activity run''}).
-These friction points consumed activity time and, in some cases, prevented students from reaching the hands-on phases.
-This reveals a recurring barrier in CLI-based educational tooling: environment setup remains a non-trivial obstacle in heterogeneous classroom settings.
+Installation and environment setup dominated: asked what was most difficult, 11 of the 20 named installing Fandango (\emph{``Some problems installing fandango''}), the Python version (\emph{``Execute the command due to version of python''}), missing prerequisites (\emph{``Having the pre requirements to make the activity''}), compiler setup on Windows, or running commands inside the virtual environment.
+Three asked for clearer installation instructions or for the prerequisites to be shared in advance, and two for a room with power outlets.
+Environment setup thus remains a non-trivial obstacle for CLI-based educational tools in heterogeneous classrooms.
 
 \textbf{Conceptual difficulties.}
-Students also found the grammar specification syntax unfamiliar at first (\emph{``Maybe, at the beginning, to understand the difference between random fuzzing and grammar-based fuzzing''}).
-The abstraction required to think in formal grammars---distinct from the procedural thinking students typically apply---represents a genuine conceptual threshold for learners new to the technique.
-This difficulty reveals that grammar-based fuzzing requires dedicated instructional scaffolding before students can reason independently about input structure.
+Asked which concept was hardest, five students named fuzzing concepts themselves---grammar-based fuzzing, the fuzzing pipeline, or the difference between random and grammar-based fuzzing (\emph{``Maybe, at the beginning, to understand the difference between random fuzzing and grammar-based fuzzing''})---and two named crash analysis (\emph{``Analysing software crashes''}).
+Eight reported no conceptual difficulty.
 
-\textbf{Emergent themes.}
-Beyond difficulties, two positive themes emerged from open-ended responses.
-Multiple students spontaneously connected observed crashes to potential security vulnerabilities (\emph{``Analysing software crashes,''} \emph{``Crash demonstration''}), suggesting that fuzzing activities may naturally support security-aware reasoning even in non-security courses.
-Students also expressed desire for more hands-on experimentation (\emph{``Maybe try to add an extra exercise that try to simulate a more realistic and complex working scenario,''} \emph{``More pratical~[sic] in more hours''}), indicating that the open-ended extension phase was perceived as the most engaging part of the workshop.
+\textbf{What helped.}
+Seven students credited the explanations, slides, or instructor, and five the hands-on practice.
+Six asked for more examples, exercises, or time (\emph{``Maybe try to add an extra exercise that try to simulate a more realistic and complex working scenario,''} \emph{``More pratical~[sic] in more hours''}).
 
 % ===========================================================================
 \section{Discussion}
@@ -286,41 +288,38 @@ Students also expressed desire for more hands-on experimentation (\emph{``Maybe 
 
 \subsection{The Pedagogical Progression: Observe, Reproduce, Break}
 
-The three-stage activity structure---live demonstration, guided replication, open-ended extension---proved effective at scaffolding the transition from passive observation to active adversarial reasoning.
+The progression from live demonstration through guided replication to open-ended extension was designed to scaffold the move from passive observation to active, adversarial reasoning.
 
-The live demonstration (Phase 2) provided the motivating experience: students saw a seemingly correct program produce unexpected crashes from simple, automatically generated inputs.
-This concrete observation---not a lecture---is what makes fuzzing memorable as a testing technique.
+The live demonstration (Phase~2) showed students a program that appeared to work correctly crash on automatically generated input; this is the experience that sets fuzzing apart from example-based testing.
 
-The guided replication (Phase 3) ensured that all students could reproduce the experience independently, reinforcing the conceptual explanation with hands-on practice.
-The provision of structured materials (Python program, grammar file, and step-by-step Markdown guide) via Google Drive removed the design barrier and allowed students to focus on the testing concepts rather than the tool mechanics.
+Guided replication (Phase~3) gave every student the chance to repeat that experience on their own machine.
+Distributing the code, grammar, and guide meant students did not have to design a target program or grammar before seeing fuzzing work; installation, however, remained the main obstacle (Section~\ref{sec:results}).
 
-The open-ended extension (Phase 4) was designed to encourage students to reason adversarially as both developer and tester simultaneously.
-Open-ended responses suggest that students perceived this phase as particularly valuable, although no systematic log data were collected to quantify how many students completed it or what types of faults were discovered.
-The dual perspective embedded in this phase---understanding not just that programs can fail, but \emph{why} they fail and \emph{how} to design inputs that expose specific failure modes---represents the core of the exploratory testing mindset this workshop aims to cultivate.
+The open-ended phase (Phase~4) asked students to reason as both developer and tester: to understand how and why programs fail, and to design inputs that make them fail---the core of the exploratory testing mindset the workshop aims to cultivate.
+No log data were collected on this phase, so we cannot report how many students completed it or what faults they found; six students asked for more exercises, examples, or time.
 
-\subsection{Fuzzing as a Security Awareness Gateway}
+\subsection{Self-Reported Versus Demonstrated Knowledge}
 
-An emergent qualitative theme in open-ended responses was the spontaneous connection students drew between observed crashes and potential vulnerabilities.
-The workshop was not framed as a security course, yet several students---without prompting---linked unexpected program failures to security risks.
-This suggests that fuzz testing activities may naturally support security-aware reasoning as a by-product, although this observation is based on qualitative responses and warrants further investigation before stronger claims can be made.
+The contrast between the large self-reported gains and the flat knowledge item is the main caveat of this evaluation.
+Students clearly left feeling more familiar with grammar-based fuzzing, but the one objective item cannot show whether they also understood it better: it started near ceiling, and the four students who switched to a wrong answer---three of them to ``random meaningless bytes''---may indicate lingering confusion between random and grammar-based fuzzing; five students named fuzzing concepts as the hardest part of the workshop.
+With so few changed answers, this cannot be distinguished from careless responding.
+Future runs should measure demonstrated skill directly, for example by assessing the grammars students write or the faults their fuzzing finds in Phase~4.
 
 \subsection{Practical and Conceptual Barriers: Implications for Curriculum Design}
 
-The two categories of difficulty identified in RQ3 have distinct implications for curriculum design.
-The practical barrier---tool installation and environment configuration---consumed valuable activity time and caused frustration.
-Yet dependency management, platform-specific build requirements, and virtual environment configuration are authentic features of professional software engineering practice.
-Exposing students to this friction---with instructor support to overcome it---contributes to professional readiness in ways that pre-configured cloud environments cannot replicate.
-We recommend a hybrid approach: provide a pre-configured environment as a backup for students who cannot complete installation, while still guiding the installation process as part of the workshop.
-
-The conceptual barrier---formal grammar specification---reveals a deeper challenge for introducing fuzzing in curricula.
+The two categories of difficulty highlighted in RQ3 have different implications for curriculum development.
+While setup consumed time, dependency management, platform-specific compilation instructions, and virtual environment configurations are real aspects of software engineering work.
+Allowing students to encounter and overcome this hurdle under the supervision of the instructor can contribute to professional readiness, something that a ready-made cloud environment cannot provide.
+A combination of approaches might prove effective here: sharing installation instructions and prerequisites before the session, as three students suggested, and providing a ready-made environment for those who still cannot install the tools, while leading the class through the installation itself.
+The second difficulty, understanding what grammar-based fuzzing does, highlights a more fundamental problem in incorporating fuzzing into educational curricula.
 Students accustomed to procedural testing (write assertions, check outputs) must shift to a generative, structural mode of thinking.
 This threshold concept warrants dedicated instructional time and may benefit from analogies to other formal notations (e.g., regular expressions, context-free grammars in compilers courses) to activate prior knowledge.
 
 \subsection{Limitations of a Single Session}
 
-Non-significant results for edge-case understanding ($p = 0.322$) and automated test generation ($p = 0.091$) indicate that broader robustness-oriented testing competencies require more than a single workshop.
-A single session can introduce vocabulary, motivate the mindset, and demonstrate the technique; sustained curriculum integration is necessary for deeper skill development.
-Future workshops should build on this foundation with more complex grammars, multi-session activities, and integration with complementary techniques such as property-based testing and mutation testing.
+The non-significant results for edge-case understanding ($p = 0.273$) and automated test generation ($p = 0.072$) suggest that broader robustness-oriented testing skills require more than a single workshop to develop.
+A single workshop can introduce the vocabulary, motivate the mindset, and give students an initial opportunity to practice the technique; however, deeper skill development requires integration into the curriculum.
+Future workshops should build on this foundation through more complex grammars, multi-session activities, and integration with complementary techniques such as property-based testing and mutation testing.
 
 % ===========================================================================
 \section{Threats to Validity}
@@ -328,59 +327,60 @@ Future workshops should build on this foundation with more complex grammars, mul
 % ===========================================================================
 
 \textbf{Internal validity.}
-The pre/post design without a control group limits causal interpretation.
-MCQ item reuse may introduce a testing effect.
+Because the study used a pre/post design without a control group, causal interpretation remains limited.
+The students had also taken part in another software-testing teaching session one week earlier, which may have influenced their responses.
+The instructor was also one of the researchers, which may have encouraged favorable self-reports.
+Reusing the same MCQ item in the pre- and post-questionnaires may also introduce a testing effect.
 
 \textbf{Construct validity.}
-Self-reported Likert assessments may not capture actual skill acquisition.
+Self-reported Likert assessments may not capture actual skill acquisition, and the only objective measure is a single MCQ that was near ceiling before the workshop.
 The seven Likert items were designed for this study and have not been validated in prior work.
 
 \textbf{External validity.}
-Single cohort ($N = 22$) at one institution limits generalizability.
+A single class of 22 students at one institution limits generalizability.
 Results may differ with students of different backgrounds, different target programs, or different Fandango versions.
 
 \textbf{Reliability.}
-Cronbach's $\alpha$ for perceived learning ($0.879$), engagement ($0.858$), and usability ($0.812$) indicate acceptable to good internal consistency.
-Cognitive load items showed lower consistency due to mixed item valence and are interpreted descriptively.
+Cronbach's $\alpha$ for perceived learning (0.88), engagement (0.86), and usability (0.81) indicates acceptable to good internal consistency.
+The cognitive-load items ($\alpha = 0.15$) mix item valence and are therefore reported individually.
 
 % ===========================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 % ===========================================================================
 
-This paper presented a structured classroom workshop for teaching grammar-based fuzz testing as a vehicle for exploratory and robustness-oriented testing thinking.
-The workshop's four-phase progression---conceptual introduction, live demonstration, guided replication, and open-ended extension---scaffolds students from passive observation to active adversarial reasoning.
+This paper presented a structured classroom workshop that used grammar-based fuzz testing to introduce exploratory and robustness-oriented testing.
+Its four phases---concept, demonstration, replication, and extension---scaffold the move from observing a fuzzer to adversarial thinking.
 
-Empirical results support significant learning gains: grammar-based fuzzing familiarity increased by $+2.05$ ($p < 0.001$, $r = 0.877$) and the random-vs.-grammar distinction by $+2.10$ ($p < 0.001$, $r = 0.877$).
-Students rated the activity as engaging and usable, and open-ended responses suggested that the extension phase was particularly valued.
-An emergent qualitative theme was the spontaneous connection students drew between observed crashes and potential security vulnerabilities, a finding that warrants further investigation.
+Students reported large gains in familiarity with grammar-based fuzzing ($+2.05$, $p < 0.001$, $r = 0.888$) and in understanding the random-vs.-grammar distinction ($+2.10$, $p < 0.001$, $r = 0.885$), although a single knowledge item did not improve.
+They rated the activity as engaging and usable, and installation was the most frequently reported difficulty.
 
-Overall, the findings suggest that grammar-based fuzzing can serve as a practical and engaging classroom pathway into exploratory and robustness-oriented testing. However, broader competence development requires sustained curricular integration beyond a single workshop.
+Overall, the findings suggest that grammar-based fuzzing can serve as a practical and engaging classroom pathway into exploratory and robustness-oriented testing, but demonstrating learning will require objective measures and a comparison condition.
 Future work should investigate multi-session curricula that build on this foundation, longitudinal retention of the exploratory testing mindset, and the integration of grammar-based fuzzing with mutation testing and property-based testing.
 
 \section*{Data Availability}
-The replication package---including questionnaire data, analysis scripts, and workshop materials---is publicly available at: \url{https://github.com/aazaadef/Fandango-Workshop}
+The replication package---including questionnaire data, analysis scripts, and workshop materials (target program, grammar, and guide)---is publicly available at: \url{https://github.com/aazaadef/Fandango-Workshop}
 
 \section*{Acknowledgment}
-This work was supported by FCT -- Funda\c{c}\~{a}o para a Ci\^{e}ncia e Tecnologia, I.P.\ by project reference UIDB/50008/2020 (DOI: \url{https://doi.org/10.54499/UIDB/50008/2020}) and by the doctoral grant PRT/BD/155023/2023.
-The authors would also like to acknowledge the Promptme4Better project, funded by the European Union Erasmus+ Program and the Portugal National Agency under grant agreement number 2025-1-PT01-KA220-HED-000363565, and all partners involved in the project.
+%This work was supported by FCT -- Funda\c{c}\~{a}o para a Ci\^{e}ncia e Tecnologia, I.P.\ by project reference UIDB/50008/2020 (DOI: \url{https://doi.org/10.54499/UIDB/50008/2020}).
+%The authors would also like to acknowledge the Promptme4Better project, funded by the European Union Erasmus+ Program and the Portugal National Agency under grant agreement number 2025-1-PT01-KA220-HED-000363565, and all partners involved in the project.
 The authors used generative AI tools solely to support English language polishing and readability improvements.
 All technical content, interpretations, and conclusions were created and verified by the authors, who take full responsibility for the final manuscript.
 
 \balance
 \bibliographystyle{IEEEtran}
 \begin{thebibliography}{99}
-\bibitem{fandango2025} ``Fandango: Grammar-Based Fuzzing Tool,'' 2025. Available: https://github.com/fandango-fuzzer/fandango
+\bibitem{garousi2020testing} V.~Garousi, A.~Rainer, P.~Lauv\aa{}s~Jr., and A.~Arcuri, ``Software-testing education: A systematic literature mapping,'' \emph{J.\ Syst.\ Softw.}, vol.~165, 2020.
 \bibitem{miller1990empirical} B.~P.~Miller, L.~Fredriksen, and B.~So, ``An Empirical Study of the Reliability of UNIX Utilities,'' \emph{Commun.\ ACM}, vol.~33, no.~12, pp.~32--44, 1990.
 \bibitem{manes2019art} V.~J.~M.~Man\`{e}s et~al., ``The Art, Science, and Engineering of Fuzzing: A Survey,'' \emph{IEEE Trans.\ Softw.\ Eng.}, vol.~47, no.~11, pp.~2312--2331, 2021.
+\bibitem{zamudio2025fandango} J.~A.~Zamudio~Amaya, M.~Smytzek, and A.~Zeller, ``FANDANGO: Evolving Language-Based Testing,'' \emph{Proc.\ ACM Softw.\ Eng.}, vol.~2, no.~ISSTA, Art.~ISSTA040, 2025, doi: 10.1145/3728915.
+\bibitem{ammann2016introduction} P.~Ammann and J.~Offutt, \emph{Introduction to Software Testing}, 2nd~ed. Cambridge University Press, 2016.
+\bibitem{mccauley2008debugging} R.~McCauley et~al., ``Debugging: a review of the literature from an educational perspective,'' \emph{Comput.\ Sci.\ Educ.}, vol.~18, no.~2, pp.~67--92, 2008.
+\bibitem{whittaker2009exploratory} J.~A.~Whittaker, \emph{Exploratory Software Testing}. Addison-Wesley, 2009.
 \bibitem{klees2018evaluating} G.~Klees et~al., ``Evaluating Fuzz Testing,'' in \emph{Proc.\ CCS '18}, ACM, 2018, pp.~2123--2138.
+\bibitem{afl2021} M.~Zalewski, ``American Fuzzy Lop (AFL),'' 2021. Available: https://lcamtuf.coredump.cx/afl/
 \bibitem{aschermann2019nautilus} C.~Aschermann et~al., ``NAUTILUS: Fishing for Deep Bugs with Grammars,'' in \emph{Proc.\ NDSS '19}, 2019.
 \bibitem{zeller2019fuzzing} A.~Zeller, R.~Gopinath, M.~B\"{o}hme, G.~Fraser, and C.~Holler, ``The Fuzzing Book,'' 2019. Available: https://www.fuzzingbook.org/
-\bibitem{afl2021} M.~Zalewski, ``American Fuzzy Lop (AFL),'' 2021. Available: https://lcamtuf.coredump.cx/afl/
-\bibitem{whittaker2009exploratory} J.~A.~Whittaker, \emph{Exploratory Software Testing}. Addison-Wesley, 2009.
-\bibitem{ammann2016introduction} P.~Ammann and J.~Offutt, \emph{Introduction to Software Testing}, 2nd~ed. Cambridge University Press, 2016.
-\bibitem{garousi2020testing} V.~Garousi, A.~Rainer, P.~Lauv\aa{}s~Jr., and A.~Arcuri, ``Software-testing education: A systematic literature mapping,'' \emph{J.\ Syst.\ Softw.}, vol.~165, 2020.
-\bibitem{mccauley2008debugging} R.~McCauley et~al., ``Debugging: a review of the literature from an educational perspective,'' \emph{Comput.\ Sci.\ Educ.}, vol.~18, no.~2, pp.~67--92, 2008.
 \bibitem{kolb1984experiential} D.~A.~Kolb, \emph{Experiential Learning: Experience as the Source of Learning and Development}. Prentice-Hall, 1984.
 \bibitem{hmelo2004problem} C.~E.~Hmelo-Silver, ``Problem-Based Learning: What and How Do Students Learn?'' \emph{Educ.\ Psychol.\ Rev.}, vol.~16, no.~3, pp.~235--266, 2004.
 \bibitem{prince2004active} M.~Prince, ``Does Active Learning Work? A Review of the Research,'' \emph{J.\ Eng.\ Educ.}, vol.~93, no.~3, pp.~223--231, 2004.
