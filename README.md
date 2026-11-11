@@ -64,4 +64,4 @@ The questionnaire files contain no names, student numbers or e-mail addresses. F
 ## Institution
 
 Universidade da Beira Interior, Covilhã, Portugal.
-Supported by FCT project UIDB/50008/2020 and doctoral grant PRT/BD/155023/2023.
+Supported by FCT project UIDB/50008/2020, doctoral grant PRT/BD/155023/2023, and the Promptme4Better project (Erasmus+, grant agreement 2025-1-PT01-KA220-HED-000363565).

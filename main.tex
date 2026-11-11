@@ -10,18 +10,44 @@
 \usepackage{hyperref}
 \usepackage{balance}
 
+% Starts a new row of author blocks
+\makeatletter
+\newcommand{\linebreakand}{%
+  \end{@IEEEauthorhalign}
+  \hfill\mbox{}\par
+  \mbox{}\hfill\begin{@IEEEauthorhalign}
+}
+\makeatother
+
 \begin{document}
 
 \title{Dancing at the Edge Cases: Teaching Grammar-Based Fuzz Testing with Fandango}
 
 \author{
-\IEEEauthorblockN{Aazaade Faraji\IEEEauthorrefmark{1}, Enrico Nunes\IEEEauthorrefmark{1}, Francisco Reis\IEEEauthorrefmark{1}, Nuno Pombo\IEEEauthorrefmark{1}\IEEEauthorrefmark{2},
-Christina Andersson\IEEEauthorrefmark{3}}
-\IEEEauthorblockA{\IEEEauthorrefmark{1}Universidade da Beira Interior, Covilh\~{a}, Portugal}
-\IEEEauthorblockA{\IEEEauthorrefmark{2}Instituto de Telecomunica\c{c}\~{o}es, Universidade da Beira Interior, Covilh\~{a}, Portugal}
-\IEEEauthorblockA{\IEEEauthorrefmark{3}Computer Science \& Engineering, Frankfurt University of Applied Sciences, Frankfurt, Germany}
-\{aazaade.faraji, enrico.nunes, francisco.reis, ngpombo\}@ubi.pt, christina.andersson@fra-uas.de
-}
+\IEEEauthorblockN{Aazaade Faraji}
+\IEEEauthorblockA{Universidade da Beira Interior\\
+Covilh\~{a}, Portugal\\
+aazaade.faraji@ubi.pt}
+\and
+\IEEEauthorblockN{Enrico Nunes}
+\IEEEauthorblockA{Universidade da Beira Interior\\
+Covilh\~{a}, Portugal\\
+enrico.nunes@ubi.pt}
+\and
+\IEEEauthorblockN{Francisco Reis}
+\IEEEauthorblockA{Universidade da Beira Interior\\
+Covilh\~{a}, Portugal\\
+francisco.reis@ubi.pt}
+\linebreakand
+\IEEEauthorblockN{Nuno Pombo}
+\IEEEauthorblockA{Instituto de Telecomunica\c{c}\~{o}es, \\Universidade da Beira Interior\\
+Covilh\~{a}, Portugal\\
+ngpombo@ubi.pt}
+\and
+\IEEEauthorblockN{Christina Andersson}
+\IEEEauthorblockA{Frankfurt University of Applied Sciences\\
+Frankfurt, Germany\\
+christina.andersson@fra-uas.de}}
 
 \maketitle
 
@@ -362,8 +388,8 @@ Future work should investigate multi-session curricula that build on this founda
 The replication package---including questionnaire data, analysis scripts, and workshop materials (target program, grammar, and guide)---is publicly available at: \url{https://github.com/aazaadef/Fandango-Workshop}
 
 \section*{Acknowledgment}
-%This work was supported by FCT -- Funda\c{c}\~{a}o para a Ci\^{e}ncia e Tecnologia, I.P.\ by project reference UIDB/50008/2020 (DOI: \url{https://doi.org/10.54499/UIDB/50008/2020}).
-%The authors would also like to acknowledge the Promptme4Better project, funded by the European Union Erasmus+ Program and the Portugal National Agency under grant agreement number 2025-1-PT01-KA220-HED-000363565, and all partners involved in the project.
+This work was supported by FCT -- Funda\c{c}\~{a}o para a Ci\^{e}ncia e Tecnologia, I.P., project reference UIDB/50008/2020 (DOI: \url{https://doi.org/10.54499/UIDB/50008/2020}) and doctoral grant PRT/BD/155023/2023.
+The authors would also like to acknowledge the Promptme4Better project, funded by the European Union Erasmus+ Program and the Portugal National Agency under grant agreement number 2025-1-PT01-KA220-HED-000363565, and all partners involved in the project.
 The authors used generative AI tools solely to support English language polishing and readability improvements.
 All technical content, interpretations, and conclusions were created and verified by the authors, who take full responsibility for the final manuscript.
 
