@@ -155,49 +155,84 @@ for j, name in enumerate(COGNITIVE_LOAD):
 import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
-matplotlib.rcParams["pdf.fonttype"] = 42  # IEEE PDF eXpress rejects Type 3 fonts
-matplotlib.rcParams["ps.fonttype"] = 42
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.lines import Line2D  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
+
+# IEEE conference template: "Use 8 point Times New Roman for Figure labels" and
+# words rather than abbreviations in axis labels. Figures are drawn at the
+# 3.5-inch column width so LaTeX does not rescale the text. TrueType (Type 42)
+# fonts, because IEEE PDF eXpress rejects Type 3 fonts.
+matplotlib.rcParams.update({
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
+    "font.family": "serif",
+    "font.serif": ["Times New Roman", "Times", "Nimbus Roman", "DejaVu Serif"],
+    "font.size": 8,
+    "axes.labelsize": 8,
+    "xtick.labelsize": 8,
+    "ytick.labelsize": 8,
+    "legend.fontsize": 8,
+    "axes.linewidth": 0.6,
+    "xtick.major.width": 0.6,
+    "ytick.major.width": 0.6,
+    "hatch.linewidth": 0.6,
+})
+COLUMN_WIDTH = 3.5  # inches
+PRE_COLOR, POST_COLOR = "#4472C4", "#ED7D31"
 
 FIG_DIR.mkdir(exist_ok=True)
-pre_means = [np.mean([likert(a[c]) for a, _ in pairs]) for c in PRE_ITEMS]
-post_means = [np.mean([likert(b[c]) for _, b in pairs]) for c in POST_ITEMS]
-short = ["Fuzz\nfamil.", "Grammar\nfamil.", "CLI\nconf.", "Edge\ncase",
-         "Auto\ngen.", "Crash\ninterp.", "Rand. vs\ngrammar"]
-x = np.arange(len(short))
-fig, ax = plt.subplots(figsize=(7, 3.5))
-ax.bar(x - 0.2, pre_means, 0.35, label="Pre", color="#4472C4", alpha=0.85)
-ax.bar(x + 0.2, post_means, 0.35, label="Post", color="#ED7D31", alpha=0.85)
-ax.set_ylabel("Mean Likert (1-5)")
-ax.set_ylim(1, 5.5)
-ax.set_title(f"Fandango: Pre/Post Self-Assessment (N = {len(pairs)})")
-ax.set_xticks(x)
-ax.set_xticklabels(short, fontsize=7)
-ax.axhline(3, color="gray", linestyle="--", linewidth=0.7, alpha=0.5)
-ax.legend(fontsize=8)
-fig.tight_layout()
-fig.savefig(FIG_DIR / "fig_fandango_prepost.pdf", bbox_inches="tight")
+
+# Fig. 2: pre/post self-assessment, one row per Likert item.
+pre_means = np.array([np.mean([likert(a[c]) for a, _ in pairs]) for c in PRE_ITEMS])
+post_means = np.array([np.mean([likert(b[c]) for _, b in pairs]) for c in POST_ITEMS])
+item_labels = ["Fuzz testing familiarity", "Grammar-based fuzzing familiarity",
+               "Command-line confidence", "Edge-case understanding",
+               "Automated test generation", "Crash interpretation",
+               "Random versus grammar-based"]
+y = np.arange(len(item_labels))
+fig, ax = plt.subplots(figsize=(COLUMN_WIDTH, 1.75), layout="constrained")
+h = 0.38
+ax.barh(y - h / 2, pre_means - 1, h, left=1, color=PRE_COLOR, label="Before the workshop")
+ax.barh(y + h / 2, post_means - 1, h, left=1, color=POST_COLOR, label="After the workshop")
+ax.set_yticks(y, item_labels)
+ax.invert_yaxis()
+ax.set_xlim(1, 5)
+ax.set_xticks([1, 2, 3, 4, 5])
+ax.set_xlabel("Mean self-rating (1–5)")
+ax.tick_params(axis="y", length=0)
+ax.spines[["top", "right"]].set_visible(False)
+fig.legend(loc="outside upper center", ncol=2, frameon=False, handlelength=1.2, columnspacing=1.5)
+fig.savefig(FIG_DIR / "fig_fandango_prepost.pdf")
 plt.close(fig)
 
-labels = ["Perceived\nlearning", "Engagement", "Usability",
-          "CL: mental\neffort", "CL: parts\nconfusing", "CL: difficulty\nappropriate"]
-values = [results[k] for k in list(CONSTRUCTS) + list(COGNITIVE_LOAD)]
-colors = ["#4472C4", "#ED7D31", "#70AD47", "#A5A5A5", "#A5A5A5", "#A5A5A5"]
-fig, ax = plt.subplots(figsize=(6, 3.2))
-bars = ax.bar(labels, values, color=colors, alpha=0.85, width=0.6)
-for bar, value in zip(bars[3:], values[3:]):
-    bar.set_hatch("//")
-ax.axhline(3, color="gray", linestyle="--", linewidth=0.8, alpha=0.6, label="Neutral (3)")
-ax.set_ylim(1, 5)
-ax.set_ylabel("Mean score (1-5)", fontsize=9)
-ax.set_title(f"Post-Session Student Perception (N = {len(post_rows)})", fontsize=10, fontweight="bold")
-ax.tick_params(axis="x", labelsize=7.5)
-for bar, value in zip(bars, values):
-    ax.text(bar.get_x() + bar.get_width() / 2, value + 0.05, f"{value:.2f}",
-            ha="center", va="bottom", fontsize=8.5, fontweight="bold")
-ax.legend(fontsize=8)
+# Fig. 3: post-session constructs, then the three cognitive-load items.
+labels = ["Perceived learning", "Engagement", "Usability",
+          "Mental effort", "Parts confusing", "Difficulty appropriate"]
+values = np.array([results[k] for k in list(CONSTRUCTS) + list(COGNITIVE_LOAD)])
+ypos = np.array([0, 1, 2, 3.35, 4.35, 5.35])
+CL_COLOR, CL_HATCH = "#D0D0D0", "#606060"
+colors = [PRE_COLOR, POST_COLOR, "#70AD47"] + [CL_COLOR] * 3
+fig, ax = plt.subplots(figsize=(COLUMN_WIDTH, 1.75), layout="constrained")
+bars = ax.barh(ypos, values - 1, 0.62, left=1, color=colors)
+for bar in bars[3:]:
+    bar.set_hatch("////")
+    bar.set_edgecolor(CL_HATCH)
+    bar.set_linewidth(0)
+for yy, value in zip(ypos, values):
+    ax.text(value + 0.05, yy, f"{value:.2f}", va="center", ha="left")
+ax.axvline(3, color="gray", linestyle="--", linewidth=0.6)
+ax.set_yticks(ypos, labels)
+ax.invert_yaxis()
+ax.set_xlim(1, 5)
+ax.set_xticks([1, 2, 3, 4, 5])
+ax.set_xlabel("Mean rating (1–5)")
+ax.tick_params(axis="y", length=0)
 ax.spines[["top", "right"]].set_visible(False)
-fig.tight_layout()
-fig.savefig(FIG_DIR / "fig_fandango_perception.pdf", bbox_inches="tight")
+fig.legend(handles=[Patch(facecolor=CL_COLOR, edgecolor=CL_HATCH, hatch="////", linewidth=0,
+                          label="Cognitive-load item"),
+                    Line2D([0], [0], color="gray", linestyle="--", linewidth=0.6, label="Neutral (3)")],
+           loc="outside upper center", ncol=2, frameon=False, handlelength=1.6, columnspacing=1.5)
+fig.savefig(FIG_DIR / "fig_fandango_perception.pdf")
 plt.close(fig)
 print("\nFigures written to figures/")
